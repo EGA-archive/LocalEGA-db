@@ -26,7 +26,14 @@ if [ "$(id -u)" = '0' ]; then
     fi
     # Fixing the ownership and permissions
     chown postgres:postgres "${PG_SERVER_KEY}" "${PG_SERVER_CERT}" || true
-    chmod 600 "${PG_SERVER_KEY}" || true
+    for file in "$PG_SERVER_KEY" "$PG_SERVER_CERT"; do
+        if [ $(stat -c %U:%G "$file" ) != "postgres:postgres" ]; then
+            chown postgres:postgres "$file"
+        fi
+        if [ $(stat -c %a "$file") != "600" ]; then
+            chmod 600 "$file"
+        fi
+    done
 
     chown postgres:postgres /etc/ega/pg.conf
     
