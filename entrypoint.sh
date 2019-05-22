@@ -25,8 +25,8 @@ if [ "$(id -u)" = '0' ]; then
 	echo "Using the injected certificate/privatekey pair" 
     fi
     # Fixing the ownership and permissions
-    chown postgres:postgres "${PG_SERVER_KEY}" "${PG_SERVER_CERT}"
-    chmod 600 "${PG_SERVER_KEY}"
+    chown postgres:postgres "${PG_SERVER_KEY}" "${PG_SERVER_CERT}" || true
+    chmod 600 "${PG_SERVER_KEY}" || true
 
     chown postgres:postgres /etc/ega/pg.conf
     
