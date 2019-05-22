@@ -25,7 +25,6 @@ if [ "$(id -u)" = '0' ]; then
 	echo "Using the injected certificate/privatekey pair" 
     fi
     # Fixing the ownership and permissions
-    chown postgres:postgres "${PG_SERVER_KEY}" "${PG_SERVER_CERT}" || true
     for file in "$PG_SERVER_KEY" "$PG_SERVER_CERT"; do
         if [ $(stat -c %U:%G "$file" ) != "postgres:postgres" ]; then
             chown postgres:postgres "$file"
