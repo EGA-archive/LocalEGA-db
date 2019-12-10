@@ -22,8 +22,3 @@ GRANT SELECT ON local_ega.archive_files  TO lega_out;                    -- Read
 GRANT USAGE ON SCHEMA local_ega_download TO lega_out;
 GRANT ALL PRIVILEGES ON ALL TABLES    IN SCHEMA local_ega_download TO lega_out; -- Read/Write on audit.* for lega_out
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA local_ega_download TO lega_out; -- Don't forget the sequences
-
--- Set up rights access for local_ega_ebi schema
-GRANT USAGE ON SCHEMA local_ega_ebi TO lega_out;
-GRANT ALL PRIVILEGES ON ALL TABLES    IN SCHEMA local_ega_ebi TO lega_out;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA local_ega_ebi TO lega_out;

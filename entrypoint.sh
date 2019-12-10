@@ -103,6 +103,33 @@ EOF
 }
 
 
+# Convenient alias
+function process_sql {
+    psql -v ON_ERROR_STOP=1 --username postgres --no-password --dbname lega "$@"
+}
+
+function docker_process_init_files {
+    local f
+    for f; do
+	case "$f" in
+	    *.sh)
+		# https://github.com/docker-library/postgres/issues/450#issuecomment-393167936
+		# https://github.com/docker-library/postgres/pull/452
+		if [ -x "$f" ]; then
+		    echo "$0: running $f"
+		    "$f"
+		else
+		    echo "$0: sourcing $f"
+		    . "$f"
+		fi
+		;;
+	    *.sql)    echo "$0: running $f"; process_sql -f "$f"; echo ;;
+	    *.sql.gz) echo "$0: running $f"; gunzip -c "$f" | process_sql; echo ;;
+	    *)        echo "$0: ignoring $f" ;;
+	esac
+    done
+}
+
 # initialize empty PGDATA directory with new database via 'initdb'
 # arguments to `initdb` can be passed via POSTGRES_INITDB_ARGS or as arguments to this function
 # `initdb` automatically creates the "postgres", "template0", and "template1" dbnames
@@ -138,7 +165,6 @@ EOSQL
     # Run sql commands (in order!)
     DB_FILES=(/etc/ega/initdb.d/main.sql
 	      /etc/ega/initdb.d/download.sql
-	      /etc/ega/initdb.d/ebi.sql
 	      /etc/ega/initdb.d/grants.sql)
 
     for f in ${DB_FILES[@]}; do # in order
@@ -148,6 +174,9 @@ EOSQL
 	echo
     done
 
+    # Extra ones from /docker-entrypoint-initdb.d
+    # Note: added to the `lega` database
+    docker_process_init_files /docker-entrypoint-initdb.d/*
 
     # Set password for lega_in and lega_out users
     psql -v ON_ERROR_STOP=1 --username postgres --no-password --dbname lega <<EOSQL
