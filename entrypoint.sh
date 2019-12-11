@@ -105,7 +105,7 @@ EOF
 
 # Convenient alias
 function process_sql {
-    psql -v ON_ERROR_STOP=1 --username postgres --no-password --dbname lega "$@"
+    psql -v ON_ERROR_STOP=1 --username postgres --no-password "$@"
 }
 
 function docker_process_init_files {
@@ -123,8 +123,8 @@ function docker_process_init_files {
 		    . "$f"
 		fi
 		;;
-	    *.sql)    echo "$0: running $f"; process_sql -f "$f"; echo ;;
-	    *.sql.gz) echo "$0: running $f"; gunzip -c "$f" | process_sql; echo ;;
+	    *.sql)    echo "$0: running $f"; process_sql --dbname lega -f "$f"; echo ;;
+	    *.sql.gz) echo "$0: running $f"; gunzip -c "$f" | process_sql --dbname lega; echo ;;
 	    *)        echo "$0: ignoring $f" ;;
 	esac
     done
@@ -157,7 +157,7 @@ EOF
     pg_ctl -D "$PGDATA" -o "-c listen_addresses='' -c password_encryption=scram-sha-256" -w start
 
     # Create lega database
-    psql -v ON_ERROR_STOP=1 --username postgres --no-password --dbname postgres <<-'EOSQL'
+    process_sql --dbname postgres <<-'EOSQL'
 SET TIME ZONE 'UTC';
 CREATE DATABASE lega;
 EOSQL
@@ -170,7 +170,7 @@ EOSQL
     for f in ${DB_FILES[@]}; do # in order
 	echo "$0: running $f";
 	echo
-	psql -v ON_ERROR_STOP=1 --username postgres --no-password --dbname lega -f $f;
+	process_sql --dbname lega -f $f;
 	echo
     done
 
@@ -179,7 +179,7 @@ EOSQL
     docker_process_init_files /docker-entrypoint-initdb.d/*
 
     # Set password for lega_in and lega_out users
-    psql -v ON_ERROR_STOP=1 --username postgres --no-password --dbname lega <<EOSQL
+    process_sql --dbname lega <<EOSQL
 ALTER USER lega_in WITH PASSWORD '${DB_LEGA_IN_PASSWORD}';
 ALTER USER lega_out WITH PASSWORD '${DB_LEGA_OUT_PASSWORD}';
 EOSQL
