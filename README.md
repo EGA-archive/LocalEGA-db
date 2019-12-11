@@ -1,8 +1,8 @@
 # LocalEGA database definitions and docker image
 
 We use
-[Postgres 11.2](https://github.com/docker-library/postgres/tree/6c3b27f1433ad81675afb386a182098dc867e3e8/11/alpine)
-and Alpine 3.9.
+[Postgres 12.1](https://github.com/docker-library/postgres/tree/0d0485cb02e526f5a240b7740b46c35404aaf13f/12/alpine)
+and Alpine 3.10.
 
 Security is hardened:
 - We do not use 'trust' even for local connections
@@ -14,8 +14,7 @@ Security is hardened:
 ## Configuration
 
 There are 2 users (`lega_in` and `lega_out`), and 2 schemas
-(`local_ega` and `local_ega_download`).  A special one is included for
-EBI to access the data through `local_ega_ebi`.
+(`local_ega` and `local_ega_download`).
 
 The following environment variables can be used to configure the database:
 
@@ -25,6 +24,9 @@ The following environment variables can be used to configure the database:
 | DB\_LEGA\_IN\_PASSWORD  | `lega_in`'s password             | -             |
 | DB\_LEGA\_OUT\_PASSWORD | `lega_out`'s password            | -             |
 | TZ                      | Timezone for the Postgres server | Europe/Madrid |
+
+
+<a title="See Initialization scripts" href="https://hub.docker.com/_/postgres">As usual</a>, include your own `.sh`, `.sql` or `.sql.gz` files in `/docker-entrypoint-initdb.d/` in order to have them included at initialization time.
 
 ## TLS support
 
